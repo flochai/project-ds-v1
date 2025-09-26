@@ -3,7 +3,7 @@ import importlib.util
 from pathlib import Path
 
 def test_anchor_imports():
-    assert Path("anchorv1.py").exists()
+    assert Path("../anchorv1.py").exists()
     spec = importlib.util.spec_from_file_location("anchor", "anchorv1.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)  # should not raise
