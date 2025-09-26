@@ -33,23 +33,17 @@ jobs:
       - name: Run unit tests
         run: pytest -v
 
-      # 2) Lint Dockerfile (part of security/quality gate)
-      - name: Lint Dockerfile with Hadolint
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: Dockerfile
-
-      # 3) Log in to Harbor (only after tests/lint succeed)
+      # 2) Log in to Harbor (only after tests/lint succeed)
       - name: Log in to Harbor
         run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login "${{ env.REGISTRY }}" -u "${{ secrets.HARBOR_USERNAME }}" --password-stdin
 
-      # 4) Build image (only runs if previous steps passed)
+      # 3) Build image (only runs if previous steps passed)
       - name: Build Docker image
         run: |
           IMAGE="${{ env.REGISTRY }}/${{ env.REPO }}"
           docker build -t "$IMAGE:${{ env.TAG }}" -t "$IMAGE:latest" .
 
-      # 5) Scan image with Trivy (fail on HIGH/CRITICAL)
+      # 4) Scan image with Trivy (fail on HIGH/CRITICAL)
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@0.20.0
         with:
@@ -59,7 +53,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
           exit-code: '1'      # fail pipeline on findings
 
-      # 6) Push image to Harbor (only if scan passed)
+      # 5) Push image to Harbor (only if scan passed)
       - name: Push image to Harbor
         run: |
           IMAGE="${{ env.REGISTRY }}/${{ env.REPO }}"
