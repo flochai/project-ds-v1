@@ -1,6 +1,6 @@
 # ===== Stage 1: Builder =====
 
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.11-slim  AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -26,7 +26,7 @@ RUN python -m pip install --upgrade pip \
 
 
 # ===== Stage 2: Runtime =====
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim 
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -48,6 +48,10 @@ RUN python -m pip install --no-cache-dir --no-index --find-links=/wheels /wheels
 COPY anchor_v1.py .
 
 EXPOSE 8501
+
+RUN adduser --disabled-password --gecos "" app && chown -R app:app /app
+USER app
+
 ENV STREAMLIT_SERVER_HEADLESS=true \
     STREAMLIT_SERVER_PORT=8501 \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
