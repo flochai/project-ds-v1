@@ -1,5 +1,6 @@
 # ===== Stage 1: Builder =====
-FROM python:3.11-slim AS builder
+
+FROM python:3.11-slim-bookworm AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -8,21 +9,24 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       build-essential=12.9 \
-       gcc=4:13.2.0-4 \
-       libffi-dev=3.4.4-1 \
-       ca-certificates=20230311 \
+       build-essential \
+       gcc \
+       libffi-dev \
+       ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN python -m pip install --upgrade pip==24.2 \
+
+# hadolint ignore=DL3013
+RUN python -m pip install --upgrade pip \
     && pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
 
 
 # ===== Stage 2: Runtime =====
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -31,22 +35,21 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Keep only certs
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       ca-certificates=20230311 \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /usr/share/doc /usr/share/man /usr/share/locale
 
 COPY --from=builder /wheels /wheels
-RUN python -m pip install --no-cache-dir --no-index --find-links=/wheels /wheels/*
+RUN python -m pip install --no-cache-dir --no-index --find-links=/wheels /wheels/* \
+    && pip uninstall -y pip setuptools wheel
 
 COPY anchor_v1.py .
 
-# Expose Streamlit port
 EXPOSE 8501
-
-# Streamlit runtime env
 ENV STREAMLIT_SERVER_HEADLESS=true \
     STREAMLIT_SERVER_PORT=8501 \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
-CMD ["streamlit", "run", "anchorv1.py"]
+CMD ["streamlit", "run", "anchor_v1.py"]
