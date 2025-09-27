@@ -34,7 +34,7 @@ jobs:
       - name: Run unit tests
         run: pytest -v
 
-      # 2) Log in to Harbor (only after tests/lint succeed)
+      # 2) Log in to Harbor 
       - name: Log in to Harbor
         uses: docker/login-action@v1
         with:
@@ -42,12 +42,13 @@ jobs:
           username: ${{ secrets.HARBOR_USERNAME  }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
-      # 3) Build image (only runs if previous steps passed)
+      # 3) Build image 
       - name: Build Docker image
         run: |
-          docker build -t "$IMAGE:${{ env.TAG }}" -t "$IMAGE:latest" .
+          docker build -t ${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE }}:latest" /
+                       -t "${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE }}:${{ env.TAG }}" .
 
-      # 4) Scan image with Trivy (fail on HIGH/CRITICAL)
+      # 4) Scan image with Trivy (fail on CRITICAL)
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@0.20.0
         with:
@@ -55,7 +56,7 @@ jobs:
           format: 'table'
           vuln-type: 'os,library'
           severity: 'CRITICAL'
-          exit-code: '1'      # fail pipeline on findings
+          exit-code: '1'    
 
       # 5) Push image to Harbor (only if scan passed)
       - name: Push image to Harbor
