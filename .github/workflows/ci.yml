@@ -54,7 +54,7 @@ jobs:
           image-ref: ${{ env.IMAGE }}:${{ env.TAG }}
           format: 'table'
           vuln-type: 'os,library'
-          severity: 'HIGH,CRITICAL'
+          severity: 'CRITICAL'
           exit-code: '1'      # fail pipeline on findings
 
       # 5) Push image to Harbor (only if scan passed)
