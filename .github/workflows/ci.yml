@@ -76,8 +76,10 @@ jobs:
 
       # 7) Update YAML for ArgoCD 
       - name: Update YAML File
+        working-directory: argo-anchor
         run: |
           yq -i '.image.tag = strenv(TAG)' values.yaml
+          echo "Updated $FILE to tag=$TAG"
 
       # 8) Push to ArgoCD Repo for K3s to pull
       - name: Push to Repo
