@@ -60,5 +60,5 @@ jobs:
       # 5) Push image to Harbor (only if scan passed)
       - name: Push image to Harbor
         run: |
-          docker push "$IMAGE:${{ env.TAG }}"
-          docker push "$IMAGE:latest"
+          docker push "${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE }}:${{ env.TAG }}"
+          docker push "${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE }}:latest"
