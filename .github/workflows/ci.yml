@@ -44,7 +44,6 @@ jobs:
       # 3) Build image (only runs if previous steps passed)
       - name: Build Docker image
         run: |
-          IMAGE="${{ env.REGISTRY }}/${{ env.REPO }}"
           docker build -t "$IMAGE:${{ env.TAG }}" -t "$IMAGE:latest" .
 
       # 4) Scan image with Trivy (fail on HIGH/CRITICAL)
@@ -60,6 +59,5 @@ jobs:
       # 5) Push image to Harbor (only if scan passed)
       - name: Push image to Harbor
         run: |
-          IMAGE="${{ env.REGISTRY }}/${{ env.REPO }}"
           docker push "$IMAGE:${{ env.TAG }}"
           docker push "$IMAGE:latest"
