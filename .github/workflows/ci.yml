@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: ${{ secrets.HARBOR_REGISTRY }}  
   REPO: anchor/anchor                        
   TAG: ${{ github.sha }}                     
 
@@ -35,7 +34,11 @@ jobs:
 
       # 2) Log in to Harbor (only after tests/lint succeed)
       - name: Log in to Harbor
-        run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login "${{ env.REGISTRY }}" -u "${{ secrets.HARBOR_USERNAME }}" --password-stdin
+        uses: docker/login-action@v1
+        with:
+          registry: harbor.flochai.com
+          username: ${{ secrets.HARBOR_USERNAME  }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
 
       # 3) Build image (only runs if previous steps passed)
       - name: Build Docker image
