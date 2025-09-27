@@ -6,7 +6,8 @@ on:
 
 env:
   REPO: anchor                      
-  TAG: ${{ github.sha }}                     
+  TAG: ${{ github.sha }}
+  IMAGE: anchor
 
 jobs:
   build-and-push:
