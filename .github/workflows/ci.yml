@@ -65,9 +65,12 @@ jobs:
           docker push "${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE }}:latest"
       
       # 6) Clone ArgoCD Repo 
-      - name: Clone Repository
-        run: |
-          git clone https://github.com/flochai/argo-anchor.git
+      - name: Checkout argo-anchor
+        uses: actions/checkout@v4
+        with:
+          repository: flochai/argo-anchor
+          token: ${{ secrets.GH_PAT }}
+          path: argo-anchor
     
       - name: Install yq
         run: |
@@ -83,10 +86,10 @@ jobs:
 
       # 8) Push to ArgoCD Repo for K3s to pull
       - name: Push to Repo
+        working-directory: argo-anchor
         run: |
-          git config --global user.name "${{secrets.USERNAME_GITHUB}}"
-          git config --global user.email "${{secrets.EMAIL_GITHUB}}"
-          cd argo-anchor
-          git add .
-          git commit -m "Updated by GitHub Actions"
-          git push https://github.com/flochai/argo-anchor.git --all
+          git config user.name  "${{ secrets.USERNAME_GITHUB }}"
+          git config user.email "${{ secrets.EMAIL_GITHUB }}"
+          git add -A
+          git commit -m "ci: update image to ${REGISTRY}/${REPO}/${IMAGE}:${TAG}"
+          git push origin HEAD:main
