@@ -76,6 +76,7 @@ jobs:
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod a+x /usr/local/bin/yq
+          
 
       # 7) Update YAML for ArgoCD 
       - name: Update YAML File
@@ -83,6 +84,7 @@ jobs:
         run: |
           yq -i '.image.tag = strenv(TAG)' values.yaml
           echo "Updated $FILE to tag=$TAG"
+          cat values.yaml
 
       # 8) Push to ArgoCD Repo for K3s to pull
       - name: Push to Repo
