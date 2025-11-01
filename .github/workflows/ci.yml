@@ -11,7 +11,7 @@ env:
   IMAGE: anchor
 
 jobs:
-  build-and-push:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +34,10 @@ jobs:
       - name: Run unit tests
         run: pytest -v
 
-      # 2) Log in to Harbor 
+  build-image:
+     runs-on: ubuntu-latest
+     
+     steps:
       - name: Log in to Harbor
         uses: docker/login-action@v1
         with:
@@ -63,7 +66,10 @@ jobs:
         run: |
           docker push "${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE }}:${{ env.TAG }}"
           docker push "${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE }}:latest"
-      
+
+  argo:
+     runs-on: ubuntu-latest
+     steps:
       # 6) Clone ArgoCD Repo 
       - name: Checkout argo-anchor
         uses: actions/checkout@v4
